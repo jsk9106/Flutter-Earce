@@ -51,7 +51,7 @@ class ChatScreen extends StatelessWidget {
       child: ListView.builder(
         padding: EdgeInsets.only(top: 2),
         physics: BouncingScrollPhysics(),
-        itemCount: 10,
+        itemCount: 5,
         itemBuilder: (context, index) {
           return buildChatListItem();
         },

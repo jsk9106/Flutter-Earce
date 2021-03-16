@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eacre/controller/post_stream_controller.dart';
 import 'package:eacre/model/area_model.dart';
@@ -22,8 +23,8 @@ class _CreatePostContainerState extends State<CreatePostContainer> {
   String imageUrl;
   String dropdownValue;
 
-  Future<void> getPhoto() async {
-    await FirebaseFirestore.instance
+  void getPhoto() {
+    FirebaseFirestore.instance
         .collection("team")
         .where('uid', isEqualTo: FirebaseAuth.instance.currentUser.uid)
         .snapshots()
@@ -84,13 +85,14 @@ class _CreatePostContainerState extends State<CreatePostContainer> {
   Row userImgAndCreatePost(BuildContext context) {
     return Row(
       children: [
-        CircleAvatar(
-          radius: 20.0,
-          backgroundColor: Colors.grey[200],
-          backgroundImage: imageUrl == null
-              ? Image.network(
-                      "https://www.freeiconspng.com/thumbs/login-icon/user-login-icon-14.png").image
-              : Image.network(imageUrl).image,
+        ClipOval(
+          child: CachedNetworkImage(
+            width: 45,
+            height: 45,
+            imageUrl: imageUrl != null ? imageUrl : "https://www.freeiconspng.com/thumbs/login-icon/user-login-icon-14.png",
+            placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+            errorWidget: (context, url, error) => Icon(Icons.error),
+          ),
         ),
         SizedBox(width: 12.0),
         Expanded(

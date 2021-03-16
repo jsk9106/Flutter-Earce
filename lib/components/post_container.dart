@@ -34,6 +34,16 @@ class _PostContainerState extends State<PostContainer> {
   }
 
   Widget buildPostList(snapshot) {
+    // List<DocumentSnapshot> postResult = [];
+    // for(DocumentSnapshot d in snapshot){
+    //   Duration diff = DateTime.now().difference(d['time'].toDate());
+    //   if(diff.inDays < 1){
+    //     postResult.add(d);
+    //   }
+    //   print("다른 시간은: ${diff.inDays}");
+    //   print(postResult[0]);
+    // }
+
     return ListView.builder(
       shrinkWrap: true,
       physics: BouncingScrollPhysics(),

@@ -46,8 +46,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
 //  게시물 firestore에 인풋
-  void add() {
-    FirebaseFirestore.instance.collection("post").add({
+  Future add() async{
+    await FirebaseFirestore.instance.collection("post").add({
       "area": dropdownValue,
       "createTime": DateTime.now(),
       "imageUrl": imageUrl,
@@ -150,9 +150,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
                 color: kShadowColor,
                 elevation: 0,
-                onPressed: () {
-                  add();
-                  Get.offAll(NavScreen());
+                onPressed: () async{
+                  await add();
+                  Get.back();
                 },
               ),
             ],

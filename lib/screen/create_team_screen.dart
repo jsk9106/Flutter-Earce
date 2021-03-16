@@ -8,6 +8,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'nav_screen.dart';
+
 class CreateTeamScreen extends StatefulWidget {
   @override
   _CreateTeamScreenState createState() => _CreateTeamScreenState();
@@ -20,6 +22,32 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
 
   String _teamImageURL = "";
   File _image;
+  String isUid = 'load';
+
+  uidCheck() async {
+    // currentUser가 collection 'team'에 등록되어있는지 확인
+    if (currentUser != null) {
+      FirebaseFirestore.instance
+          .collection('team')
+          .where('uid', isEqualTo: currentUser.uid)
+          .snapshots()
+          .listen((event) {
+        setState(() {
+          if (event.docs.length != 0) {
+            isUid = 'true';
+          } else {
+            isUid = 'false';
+          }
+        });
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    uidCheck();
+    super.initState();
+  }
 
   // Firestore에 유저 정보 add
   void add() {
@@ -60,7 +88,6 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
         .whenComplete(() => storageReference.getDownloadURL().then((fileURL) {
               setState(() {
                 _teamImageURL = fileURL;
-                add();
               });
             }));
   }
@@ -68,6 +95,17 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    if (isUid == 'false')
+      return createTeamWidget(size);
+    else if (isUid == 'true')
+      return NavScreen();
+    else
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+  }
+
+  Scaffold createTeamWidget(Size size) {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -100,8 +138,12 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
                   padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
                   color: kShadowColor,
                   elevation: 0,
-                  onPressed: () {
-                    uploadFile();
+                  onPressed: () async{
+                    setState(() {
+                      isUid = 'load';
+                    });
+                    await uploadFile();
+                    add();
                   },
                 ),
               ],

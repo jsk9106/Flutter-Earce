@@ -22,14 +22,14 @@ class CustomTabBar extends StatelessWidget {
       tabs: icons
           .asMap()
           .map((i, e) => MapEntry(
-                i,
-                Tab(
-                  icon: Icon(
-                    e,
-                    color: i == selectedIndex ? kShadowColor : Colors.black45,
-                  ),
-                ),
-              ))
+        i,
+        Tab(
+          icon: Icon(
+            e,
+            color: i == selectedIndex ? kShadowColor : Colors.black45,
+          ),
+        ),
+      ))
           .values
           .toList(),
       onTap: onTap,

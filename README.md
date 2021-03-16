@@ -1,16 +1,11 @@
-# eacre
+# Eacre
 
-A new Flutter application.
+Eacre는 2에이커(acre) 라는 뜻으로 축구경기장 면적의 크기입니다.
+유소년 축구팀들이 서로 연습경기를 잡을 수 있도록 만든 프로젝트입니다.
+원하는 일시와 장소를 적어 매치글을 등록하면 타임라인 형식으로 화면에 출력됩니다.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Firebase와 연동하여 작업하였고, 구글로그인, 페이스북 로그인으로 앱을 이용할 수 있습니다.
+로그인을 하였다면, 팀 이름과 로고를 입력하는 간단한 팀 등록을 하게 됩니다.
+Getx를 통해 선택한 지역에 따라 stream이 바뀌게 하였습니다.
+마음에 드는 일정의 매치글이 있다면, 서로 메세지를 주고 받을 수 있도록 하였습니다.
+검색 기능이 있어 팀 이름, 지역, 경기 대상 등으로 검색할 수 있습니다.

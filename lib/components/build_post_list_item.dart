@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eacre/screen/message_screen.dart';
 import 'package:flutter/material.dart';
@@ -16,15 +17,15 @@ class BuildPostListItem extends StatelessWidget {
     Duration diff = DateTime.now().difference(input);
 
     if (diff.inDays >= 1) {
-      return '${diff.inDays}d ago';
+      return '${diff.inDays}일 전';
     } else if (diff.inHours >= 1) {
-      return '${diff.inHours}h ago';
+      return '${diff.inHours}시간 전';
     } else if (diff.inMinutes >= 1) {
-      return '${diff.inMinutes}m ago';
+      return '${diff.inMinutes}분 전';
     } else if (diff.inSeconds >= 1) {
-      return '${diff.inSeconds}s ago';
+      return '${diff.inSeconds}초 전';
     } else {
-      return 'just now';
+      return '방금전';
     }
     // return diff.inDays.toString();
   }
@@ -40,10 +41,14 @@ class BuildPostListItem extends StatelessWidget {
         children: [
           Row(
             children: [
-              CircleAvatar(
-                radius: 20.0,
-                backgroundColor: Colors.grey[200],
-                backgroundImage: Image.network(item['imageUrl']).image,
+              ClipOval(
+                child: CachedNetworkImage(
+                  width: 45,
+                  height: 45,
+                  imageUrl: item['imageUrl'],
+                  placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                ),
               ),
               SizedBox(width: 12),
               Column(
