@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "445829346961",
+    "project_id": "eacre-c71a1",
+    "storage_bucket": "eacre-c71a1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:445829346961:android:b1f4da78832c008416f130",
+        "android_client_info": {
+          "package_name": "com.example.eacre"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "445829346961-efrkfuh6l2h3inpdvteecit2dev6ckcd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.eacre",
+            "certificate_hash": "2edd75ec040e03b16a5cb0360f06f7094117a24c"
+          }
+        },
+        {
+          "client_id": "445829346961-tdc7khe1ktsfelcums4hvhgkb95qovk1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVS-jjqoim0k-idao9BZc6DHAZPMxDJqs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "445829346961-tdc7khe1ktsfelcums4hvhgkb95qovk1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
