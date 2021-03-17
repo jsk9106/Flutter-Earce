@@ -4,18 +4,20 @@ import 'package:eacre/screen/message_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:eacre/controller/match_controller.dart';
 
 class BuildPostListItem extends StatelessWidget {
+  final QueryDocumentSnapshot item;
+  final bool isMyMatch;
+
   const BuildPostListItem({
     Key key,
     @required this.item,
+    this.isMyMatch = false,
   }) : super(key: key);
-
-  final QueryDocumentSnapshot item;
 
   String convertToAgo(DateTime input) {
     Duration diff = DateTime.now().difference(input);
-
     if (diff.inDays >= 1) {
       return '${diff.inDays}일 전';
     } else if (diff.inHours >= 1) {
@@ -27,11 +29,13 @@ class BuildPostListItem extends StatelessWidget {
     } else {
       return '방금전';
     }
-    // return diff.inDays.toString();
   }
+
 
   @override
   Widget build(BuildContext context) {
+    MatchController matchController = MatchController();
+
     return Container(
       color: Colors.white,
       margin: EdgeInsets.symmetric(vertical: 5),
@@ -46,7 +50,8 @@ class BuildPostListItem extends StatelessWidget {
                   width: 45,
                   height: 45,
                   imageUrl: item['imageUrl'],
-                  placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                  placeholder: (context, url) =>
+                      Center(child: CircularProgressIndicator()),
                   errorWidget: (context, url, error) => Icon(Icons.error),
                 ),
               ),
@@ -93,11 +98,36 @@ class BuildPostListItem extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               Text(item['target']),
               Spacer(),
-              IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: () {
-                    Get.to(MessageScreen());
-                  }),
+              isMyMatch
+                  ? Row(
+                    children: [
+                      IconButton(
+                          icon: Icon(Icons.done),
+                          onPressed: () {},
+                        ),
+                      IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () async{
+                          await matchController.deleteMatch(item.id);
+                          Scaffold.of(context).showSnackBar(SnackBar(
+                            content: Text("삭제 되었습니다"),
+                          ));
+                        },
+                      )
+                    ],
+                  )
+                  : IconButton(
+                      icon: Icon(Icons.send),
+                      onPressed: () {
+                        Get.to(
+                          () => MessageScreen(
+                            peerUserUid: item['uid'],
+                            peerUserTeamName: item['team_name'],
+                            peerUserImgUrl: item['imageUrl'],
+                          ),
+                        );
+                      },
+                    ),
             ],
           ),
         ],

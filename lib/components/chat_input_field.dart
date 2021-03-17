@@ -1,84 +1,108 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../constants.dart';
 
-Container chatInputField() {
-  User currentUser = FirebaseAuth.instance.currentUser;
-  TextEditingController inputMessage = TextEditingController();
+class ChatInputField extends StatelessWidget {
+  final String currentUserUid;
+  final String peerUserUid;
+  final String chatId;
+  final TextEditingController inputMessage = TextEditingController();
+
+  ChatInputField({
+    Key key,
+    @required this.currentUserUid,
+    @required this.peerUserUid,
+    @required this.chatId,
+  }) : super(key: key);
 
   void send() {
-    FirebaseFirestore.instance.collection("message").add({
-      "isSender": true,
-      "messageStatus": {
-        "notSent": false,
-        "view": false,
-      },
-      "messageType": {
-        "audio": false,
-        "image": false,
-        "text": true,
-        "video": false
-      },
-      "text": inputMessage.text,
-      "sendTime": DateTime.now(),
-      "uid": currentUser.uid,
-    });
+    // type: 0 = text, 1 = image, 2 = sticker
+    if (inputMessage.text.trim() != '') {
+      var content = inputMessage.text;
+      inputMessage.clear();
+
+      var documentReference = FirebaseFirestore.instance
+          .collection('chat')
+          .doc(chatId)
+          .collection(chatId)
+          .doc(DateTime.now().millisecondsSinceEpoch.toString());
+
+      FirebaseFirestore.instance.runTransaction((transaction) async {
+        await transaction.set(
+          documentReference,
+          {
+            'idFrom': currentUserUid,
+            'idTo': peerUserUid,
+            'sendTime': DateTime.now(),
+            'content': content,
+            'type': 0,
+            'messageStatus': true,
+          },
+        );
+      });
+    } else {
+      // Fluttertoast.showToast(msg: 'Nothing to send');
+      Get.snackbar("알림", "메세지가 없습니다");
+    }
   }
 
-  return Container(
-    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      boxShadow: [
-        BoxShadow(
-          offset: Offset(0, 4),
-          color: Colors.black.withOpacity(0.05),
-          blurRadius: 32,
-        ),
-      ],
-    ),
-    child: SafeArea(
-      child: Row(
-        children: [
-          IconButton(
-            icon: Icon(Icons.attach_file),
-            color: kShadowColor,
-            onPressed: () {},
-          ),
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.only(right: 15),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: kShadowColor.withOpacity(0.1)),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.emoji_emotions_outlined),
-                    color: Colors.black45,
-                    onPressed: () {},
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: inputMessage,
-                      decoration: InputDecoration(
-                        hintText: "메세지를 입력하세요",
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () => send(),
-                    child: Icon(Icons.send),
-                  )
-                ],
-              ),
-            ),
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            offset: Offset(0, 4),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 32,
           ),
         ],
       ),
-    ),
-  );
+      child: SafeArea(
+        child: Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.attach_file),
+              color: kShadowColor,
+              onPressed: () {},
+            ),
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.only(right: 15),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: kShadowColor.withOpacity(0.1)),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.emoji_emotions_outlined),
+                      color: Colors.black45,
+                      onPressed: () {},
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: inputMessage,
+                        decoration: InputDecoration(
+                          hintText: "메세지를 입력하세요",
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => send(),
+                      child: Icon(Icons.send),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

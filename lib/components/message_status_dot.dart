@@ -2,28 +2,17 @@ import 'package:flutter/material.dart';
 
 import '../constants.dart';
 
-Widget messageStatusDot(messageStatus) {
-  Color dotColor () {
-    if(messageStatus["notSent"]){
-      return Colors.red;
-    } else if(messageStatus["view"]) {
-      return kShadowColor;
-    } else if(!messageStatus["view"]) {
-      return Colors.grey;
-    } else {
-      return Colors.transparent;
-    }
-  }
+Widget messageStatusDot(bool messageStatus) {
   return Container(
     margin: EdgeInsets.only(right: 10),
     height: 12,
     width: 12,
     decoration: BoxDecoration(
-      color: dotColor(),
+      color: messageStatus ? kShadowColor : Colors.red,
       shape: BoxShape.circle,
     ),
     child: Icon(
-      messageStatus["notSent"] ? Icons.close : Icons.done,
+      messageStatus ? Icons.done : Icons.close,
       color: Colors.white,
       size: 8,
     ),

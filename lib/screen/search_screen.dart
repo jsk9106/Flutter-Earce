@@ -27,7 +27,10 @@ class _SearchScreenState extends State<SearchScreen> {
     return SafeArea(
       child: SingleChildScrollView(
         child: Column(
-          children: [customSearchBar(), _buildBody()],
+          children: [
+            customSearchBar(),
+            _buildBody(),
+          ],
         ),
       ),
     );
@@ -63,7 +66,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           });
                         })
                     : Container(),
-                hintText: '검색',
+                hintText: '매치 검색',
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.transparent),
                   borderRadius: BorderRadius.all(Radius.circular(10)),
