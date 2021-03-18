@@ -30,7 +30,6 @@ class _MatchScreenState extends State<MatchScreen> {
       child: Column(
         children: [
           _buildTitle(),
-          // Divider(thickness: 2, height: 2, color: Colors.white),
           buildAppBar(),
           buildBody(),
         ],

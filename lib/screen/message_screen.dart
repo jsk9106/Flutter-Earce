@@ -39,7 +39,6 @@ class _MessageScreenState extends State<MessageScreen> {
   @override
   void initState() {
     createChatId();
-    print(chatId);
     super.initState();
   }
 

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eacre/components/match_dialog.dart';
+import 'package:eacre/controller/ago_controller.dart';
 import 'package:eacre/model/match_do_model.dart';
 import 'package:eacre/screen/message_screen.dart';
 import 'package:flutter/material.dart';
@@ -18,24 +19,8 @@ class BuildPostListItem extends StatelessWidget {
     this.isMyMatch = false,
   }) : super(key: key);
 
-  String convertToAgo(DateTime input) {
-    Duration diff = DateTime.now().difference(input);
-    if (diff.inDays >= 1) {
-      return '${diff.inDays}일 전';
-    } else if (diff.inHours >= 1) {
-      return '${diff.inHours}시간 전';
-    } else if (diff.inMinutes >= 1) {
-      return '${diff.inMinutes}분 전';
-    } else if (diff.inSeconds >= 1) {
-      return '${diff.inSeconds}초 전';
-    } else {
-      return '방금전';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    MatchController matchController = MatchController();
 
     return Stack(
       children: [
@@ -113,20 +98,14 @@ class BuildPostListItem extends StatelessWidget {
                                 icon: Icon(Icons.done),
                                 onPressed: () async {
                                   // await matchController.manageMatch(context, item.id, MatchDo.completed);
-                                  print(item['isMatched']);
-                                  if (item['isMatched'])
-                                    return;
-                                  else
-                                    Get.dialog(matchDialog(
-                                        context, item.id, MatchDo.completed));
+                                  if (item['isMatched']) return;
+                                  else Get.dialog(matchDialog(context, item.id, MatchDo.completed));
                                 },
                               ),
                               IconButton(
                                 icon: Icon(Icons.delete),
                                 onPressed: () async {
-                                  // await matchController.manageMatch(context, item.id, MatchDo.delete);
-                                  Get.dialog(matchDialog(
-                                      context, item.id, MatchDo.delete));
+                                  Get.dialog(matchDialog(context, item.id, MatchDo.delete));
                                 },
                               )
                             ],
@@ -151,10 +130,11 @@ class BuildPostListItem extends StatelessWidget {
         ),
         item['isMatched']
             ? Positioned(
-          top: 70,
+                top: 70,
                 left: 0,
                 right: 0,
-                child: Center(child: Text("매치완료", style: TextStyle(fontSize: 40))),
+                child:
+                    Center(child: Text("매치완료", style: TextStyle(fontSize: 40))),
               )
             : Container(),
       ],

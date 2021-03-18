@@ -42,9 +42,26 @@ class ChatInputField extends StatelessWidget {
           },
         );
       });
+
+      // 채팅방에 user정보 한 번만 업로드
+      Future<DocumentSnapshot> chatInfo = FirebaseFirestore.instance.collection('chat').doc(chatId).get();
+      // chatInfo.asStream().forEach((element) {
+      //   print(element['user1']);
+      // });
+      chatInfo.asStream().listen((event) {
+        // print(event.data()['user1']);
+        print(event.data());
+        if(event.data()['user1'] == null || event.data()['user2'] == null){
+          FirebaseFirestore.instance.collection('chat').doc(chatId).set({
+            'user1': currentUserUid,
+            'user2': peerUserUid,
+          });
+        }
+      });
+
     } else {
       // Fluttertoast.showToast(msg: 'Nothing to send');
-      Get.snackbar("알림", "메세지가 없습니다");
+      Get.snackbar("알림", "메세지가 없습니다", colorText: Colors.white);
     }
   }
 

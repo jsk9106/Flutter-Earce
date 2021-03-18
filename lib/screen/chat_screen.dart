@@ -1,6 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eacre/constants.dart';
+import 'package:eacre/controller/chatInfo_controller.dart';
 import 'package:eacre/screen/message_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -13,6 +16,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _filter = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   String _searchText = "";
+  String chatResult;
 
   _ChatScreenState() {
     _filter.addListener(() {
@@ -24,24 +28,22 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            buildChatAppBar(size),
-            buildTeam(),
+            buildChatAppBar(),
+            buildChat(),
           ],
         ),
       ),
     );
   }
 
-  Container buildChatAppBar(Size size) {
+  Container buildChatAppBar() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      height: size.height * 0.1,
+      height: Get.size.height * 0.1,
       color: kShadowColor,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -97,72 +99,157 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Expanded buildTeam() {
+  Expanded buildChat() {
     return Expanded(
       child: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('team').snapshots(),
+        // 채팅 방 목록 가져오기
+        stream: FirebaseFirestore.instance.collection('chat').snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData)
             return Center(child: CircularProgressIndicator());
-          return buildTeamList(snapshot.data.docs);
+          return buildChatList(snapshot.data.docs);
         },
       ),
     );
   }
 
-  ListView buildTeamList(snapshot) {
+  ListView buildChatList(snapshot) {
+    User currentUser = FirebaseAuth.instance.currentUser;
     List searchResult = [];
+    // 가져온 채팅 방 목록에서 현재 유저의 uid값이 들어간 문서만 리스트에 담기
     for (DocumentSnapshot d in snapshot) {
-      if (d['team_name'].contains(_searchText)) {
+      if (d.id.contains(currentUser.uid)) {
         searchResult.add(d);
       }
     }
+
     return ListView.builder(
       padding: EdgeInsets.only(top: 2),
       physics: BouncingScrollPhysics(),
       itemCount: searchResult.length,
       itemBuilder: (context, index) {
-        return buildTeamListItem(searchResult[index]);
+        return buildChatListItem(searchResult[index], currentUser);
       },
     );
   }
 
-  GestureDetector buildTeamListItem(team) {
+  Widget buildChatListItem(chat, User currentUser) {
+    String result1 = chat.id.replaceAll(currentUser.uid, "");
+    String result2 = result1.replaceAll("-", "");
+    return Container(
+      color: Colors.white,
+      child: StreamBuilder(
+        // 받아온 리스트 값으로 채팅 방 목록 만든 뒤 상대 유저 uid값을 구해서 스트림 빌더로 팀 콜렉션 호출
+        stream: FirebaseFirestore.instance
+            .collection('team')
+            .where('uid', isEqualTo: result2)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData)
+            return Center(child: CircularProgressIndicator());
+          return _buildTeamInfo(snapshot.data.docs, chat.id);
+        },
+      ),
+    );
+  }
+
+  Widget _buildTeamInfo(snapshot, chatId) {
+    // 가져온 chatId값으로 채팅 정보 가져와서 Get으로 뿌려주기(마지막 채팅내용, 마지막 채팅 시간)
+    Get.put(ChatInfoController());
+    Get.find<ChatInfoController>().getContent(chatId);
+    Get.find<ChatInfoController>().getAgo(chatId);
+    var teamInfo = snapshot[0];
+
+    // 받아온 상대 유저 정보를 화면에 그리기(팀 로고, 팀 명)
     return GestureDetector(
       onTap: () => Get.to(
         () => MessageScreen(
-          peerUserImgUrl: team['imageUrl'],
-          peerUserUid: team['uid'],
-          peerUserTeamName: team['team_name'],
+          peerUserUid: teamInfo['uid'],
+          peerUserTeamName: teamInfo['team_name'],
+          peerUserImgUrl: teamInfo['imageUrl'],
         ),
       ),
       child: Container(
-        color: Colors.white,
-        margin: const EdgeInsets.symmetric(vertical: 1),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-        child: Row(
-          children: [
-            CircleAvatar(
-                radius: 20,
-                backgroundImage: Image.network(team['imageUrl']).image),
-            SizedBox(width: 20),
-            Expanded(
-              child: Text(team['team_name'],
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            ),
-            IconButton(
-              icon: Icon(Icons.send),
-              onPressed: () => Get.to(
-                () => MessageScreen(
-                  peerUserImgUrl: team['imageUrl'],
-                  peerUserUid: team['uid'],
-                  peerUserTeamName: team['team_name'],
+        color: Colors.transparent, // 컬러를 지정해줌으로써 공간을 다 먹고 아무데나 눌러도 네비게이터가 되게 함
+        margin: const EdgeInsets.only(bottom: 5),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        child: Obx(
+          () => Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ClipOval(
+                child: CachedNetworkImage(
+                  imageUrl: teamInfo['imageUrl'],
+                  width: 60,
+                  height: 60,
+                  placeholder: (context, url) =>
+                      Center(child: CircularProgressIndicator()),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
                 ),
               ),
-            ),
-          ],
+              SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(teamInfo['team_name'], style: TextStyle(fontSize: 20)),
+                    SizedBox(height: 3),
+                    Text(
+                      Get.find<ChatInfoController>().content.value,
+                      style: TextStyle(fontSize: 13, color: Colors.black45),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                Get.find<ChatInfoController>().ago.value,
+                style: TextStyle(fontSize: 13, color: Colors.black45),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+
+// GestureDetector buildTeamListItem(team) {
+//   return GestureDetector(
+//     onTap: () => Get.to(
+//       () => MessageScreen(
+//         peerUserImgUrl: team['imageUrl'],
+//         peerUserUid: team['uid'],
+//         peerUserTeamName: team['team_name'],
+//       ),
+//     ),
+//     child: Container(
+//       color: Colors.white,
+//       margin: const EdgeInsets.symmetric(vertical: 1),
+//       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+//       child: Row(
+//         children: [
+//           CircleAvatar(
+//               radius: 20,
+//               backgroundImage: Image.network(team['imageUrl']).image),
+//           SizedBox(width: 20),
+//           Expanded(
+//             child: Text(team['team_name'],
+//                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+//           ),
+//           IconButton(
+//             icon: Icon(Icons.send),
+//             onPressed: () => Get.to(
+//               () => MessageScreen(
+//                 peerUserImgUrl: team['imageUrl'],
+//                 peerUserUid: team['uid'],
+//                 peerUserTeamName: team['team_name'],
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     ),
+//   );
+// }
+
 }

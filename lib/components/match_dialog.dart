@@ -50,10 +50,11 @@ Widget matchDialog(BuildContext context, String id, MatchDo matchDo) {
                         mathController.completed(id);
                         break;
                     }
-                    Scaffold.of(context).showSnackBar(SnackBar(
-                      content: Text(changeToastString(matchDo)),
-                    ));
+                    // Scaffold.of(context).showSnackBar(SnackBar(
+                    //   content: Text(changeToastString(matchDo)),
+                    // ));
                     Get.back();
+                    Get.snackbar("알림", changeSnackbatText(matchDo), colorText: Colors.white);
                   },
                 ),
                 customButton(
@@ -91,7 +92,7 @@ String changeString(MatchDo matchDo) {
   }
 }
 
-String changeToastString(MatchDo matchDo) {
+String changeSnackbatText(MatchDo matchDo) {
   switch (matchDo) {
     case MatchDo.delete:
       return "매치 삭제가 완료되었습니다.";
