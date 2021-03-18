@@ -6,6 +6,7 @@ import 'package:eacre/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'nav_screen.dart';
@@ -94,9 +95,8 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     if (isUid == 'false')
-      return createTeamWidget(size);
+      return createTeamWidget();
     else if (isUid == 'true')
       return NavScreen();
     else
@@ -105,13 +105,13 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
       );
   }
 
-  Scaffold createTeamWidget(Size size) {
+  Scaffold createTeamWidget() {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
             color: Colors.white,
-            height: size.height - 90,
+            height: Get.size.height - 90,
             margin: EdgeInsets.symmetric(vertical: 30),
             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 30),
             child: Column(

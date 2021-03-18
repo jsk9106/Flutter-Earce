@@ -60,7 +60,6 @@ class _MatchScreenState extends State<MatchScreen> {
       if (d["location"].contains(_searchText) |
           d['target'].contains(_searchText) |
           d['time'].toDate().toString().contains(_searchText)) {
-        print(d.id);
         searchResult.add(d);
       }
     }
