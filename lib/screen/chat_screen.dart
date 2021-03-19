@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eacre/constants.dart';
 import 'package:eacre/controller/chatInfo_controller.dart';
 import 'package:eacre/screen/message_screen.dart';
+import 'package:eacre/screen/team_list_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -36,6 +37,11 @@ class _ChatScreenState extends State<ChatScreen> {
             buildChat(),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Get.to(() => TeamListScreen()),
+        child: Icon(Icons.person_add),
+        backgroundColor: kShadowColor,
       ),
     );
   }

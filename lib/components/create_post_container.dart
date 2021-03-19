@@ -12,7 +12,7 @@ class CreatePostContainer extends StatefulWidget {
 
   const CreatePostContainer({
     Key key,
-    @required this.currentUser
+    @required this.currentUser,
   }) : super(key: key);
 
   @override
@@ -20,6 +20,7 @@ class CreatePostContainer extends StatefulWidget {
 }
 
 class _CreatePostContainerState extends State<CreatePostContainer> {
+  final PostStreamController controller = Get.put(PostStreamController());
   String imageUrl;
   String dropdownValue;
 
@@ -70,7 +71,7 @@ class _CreatePostContainerState extends State<CreatePostContainer> {
           setState(() {
             dropdownValue = newValue;
           });
-          Get.find<PostStreamController>().areaChange(dropdownValue);
+          controller.areaChange(dropdownValue);
         },
         items: areaList.map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
@@ -89,8 +90,11 @@ class _CreatePostContainerState extends State<CreatePostContainer> {
           child: CachedNetworkImage(
             width: 45,
             height: 45,
-            imageUrl: imageUrl != null ? imageUrl : "https://www.freeiconspng.com/thumbs/login-icon/user-login-icon-14.png",
-            placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+            imageUrl: imageUrl != null
+                ? imageUrl
+                : "https://www.freeiconspng.com/thumbs/login-icon/user-login-icon-14.png",
+            placeholder: (context, url) =>
+                Center(child: CircularProgressIndicator()),
             errorWidget: (context, url, error) => Icon(Icons.error),
           ),
         ),

@@ -12,6 +12,13 @@ class ChatInfoController extends GetxController{
     });
   }
 
+  // void getContent(chatId){
+  //   FirebaseFirestore.instance.collection('chat').doc(chatId).collection(chatId).snapshots().listen((event) {
+  //     print(event.docs.toList().last['content']);
+  //     // content(event.docs.toList().last['content']);
+  //   });
+  // }
+
   void getAgo(chatId){
     FirebaseFirestore.instance.collection('chat').doc(chatId).collection(chatId).get().then((value) {
       ago(convertToAgo(value.docs.toList().last['sendTime'].toDate()));

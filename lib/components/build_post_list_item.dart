@@ -7,7 +7,6 @@ import 'package:eacre/screen/message_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:eacre/controller/match_controller.dart';
 
 class BuildPostListItem extends StatelessWidget {
   final QueryDocumentSnapshot item;

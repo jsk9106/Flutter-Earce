@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:eacre/controller/chatInfo_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -49,9 +50,8 @@ class ChatInputField extends StatelessWidget {
       //   print(element['user1']);
       // });
       chatInfo.asStream().listen((event) {
-        // print(event.data()['user1']);
-        print(event.data());
-        if(event.data()['user1'] == null || event.data()['user2'] == null){
+        // print("eventData: ${event.data()}");
+        if(event.data() == null){
           FirebaseFirestore.instance.collection('chat').doc(chatId).set({
             'user1': currentUserUid,
             'user2': peerUserUid,

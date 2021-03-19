@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'build_post_list_item.dart';
+import 'create_post_container.dart';
 
 class PostContainer extends StatefulWidget {
   const PostContainer({Key key}) : super(key: key);
@@ -13,10 +14,12 @@ class PostContainer extends StatefulWidget {
 }
 
 class _PostContainerState extends State<PostContainer> {
+  final PostStreamController controller = Get.put(PostStreamController());
+
   @override
   void initState() {
     // stream 값 초기화
-    Get.find<PostStreamController>().areaInit();
+    controller.areaInit();
     super.initState();
   }
 
@@ -24,7 +27,7 @@ class _PostContainerState extends State<PostContainer> {
   Widget build(BuildContext context) {
     return Obx(
       () => StreamBuilder(
-        stream: Get.find<PostStreamController>().stream.value,
+        stream: controller.stream.value,
         builder: (context, snapshot) {
           if (!snapshot.hasData) return LinearProgressIndicator();
           return buildPostList(snapshot.data.docs);
