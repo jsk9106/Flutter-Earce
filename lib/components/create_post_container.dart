@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:eacre/controller/home_controller.dart';
 import 'package:eacre/controller/post_stream_controller.dart';
 import 'package:eacre/model/area_model.dart';
 import 'package:eacre/screen/create_post_screen.dart';
@@ -20,7 +21,7 @@ class CreatePostContainer extends StatefulWidget {
 }
 
 class _CreatePostContainerState extends State<CreatePostContainer> {
-  final PostStreamController controller = Get.put(PostStreamController());
+  final HomeController controller = Get.put(HomeController());
   String imageUrl;
   String dropdownValue;
 
@@ -46,7 +47,7 @@ class _CreatePostContainerState extends State<CreatePostContainer> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 5),
+      margin: const EdgeInsets.only(bottom: 5, top: 10),
       padding: const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 0.0),
       color: Colors.white,
       child: Column(
