@@ -20,4 +20,5 @@ const kBodyTextColorDark = Color(0xFF7C7C7C);
 const kTitleTextLightColor = Color(0xFF101112);
 const kTitleTextDarkColor = Colors.white;
 
-const kShadowColor = Color(0xFF364564);
+// const kShadowColor = Color(0xFF364564);
+const kShadowColor = Color(0xFFFF97B3);

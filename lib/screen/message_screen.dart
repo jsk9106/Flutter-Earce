@@ -1,8 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eacre/components/chat_input_field.dart';
+import 'package:eacre/components/components.dart';
 import 'package:eacre/components/message_status_dot.dart';
 import 'package:eacre/components/text_message.dart';
+import 'package:eacre/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -54,6 +55,7 @@ class _MessageScreenState extends State<MessageScreen> {
                   .collection('chat')
                   .doc(chatId)
                   .collection(chatId)
+                  .orderBy('sendTime', descending: true)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData)
@@ -76,6 +78,7 @@ class _MessageScreenState extends State<MessageScreen> {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15),
       child: ListView.builder(
+        reverse: true,
         physics: BouncingScrollPhysics(),
         itemCount: snapshot.length,
         itemBuilder: (context, index) {
@@ -108,22 +111,13 @@ class _MessageScreenState extends State<MessageScreen> {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(top: 30),
+      padding: const EdgeInsets.only(bottom: 20),
       child: Row(
         mainAxisAlignment:
             isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           if (!isSender) ...[
-            ClipOval(
-              child: CachedNetworkImage(
-                imageUrl: widget.peerUserImgUrl,
-                width: 40,
-                height: 40,
-                placeholder: (context, url) =>
-                    Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-              ),
-            ),
+            buildTeamImg(widget.peerUserImgUrl, 40),
             SizedBox(width: 10),
           ],
           if (isSender) messageStatusDot(message['messageStatus']),
@@ -135,30 +129,17 @@ class _MessageScreenState extends State<MessageScreen> {
 
   AppBar messageAppBar() {
     return AppBar(
-      toolbarHeight: 70,
+      elevation: 0,
+      backgroundColor: kScaffoldColor,
+      toolbarHeight: Get.size.height * 0.1,
       leading: IconButton(
         icon: Icon(Icons.arrow_back_ios),
-        color: Colors.white,
+        color: Colors.black,
         onPressed: () => Get.back(),
       ),
-      title: Row(
-        children: [
-          ClipOval(
-            child: CachedNetworkImage(
-              imageUrl: widget.peerUserImgUrl,
-              width: 40,
-              height: 40,
-              placeholder: (context, url) =>
-                  Center(child: CircularProgressIndicator()),
-              errorWidget: (context, url, error) => Icon(Icons.error),
-            ),
-          ),
-          SizedBox(width: 15),
-          Text(
-            widget.peerUserTeamName,
-            style: TextStyle(fontWeight: FontWeight.w400),
-          ),
-        ],
+      title: Text(
+        widget.peerUserTeamName,
+        style: TextStyle(fontWeight: FontWeight.w400, color: Colors.black),
       ),
     );
   }

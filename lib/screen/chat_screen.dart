@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:eacre/components/components.dart';
 import 'package:eacre/constants.dart';
 import 'package:eacre/controller/chatInfo_controller.dart';
 import 'package:eacre/screen/message_screen.dart';
@@ -183,23 +184,14 @@ class _ChatScreenState extends State<ChatScreen> {
           () => Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ClipOval(
-                child: CachedNetworkImage(
-                  imageUrl: teamInfo['imageUrl'],
-                  width: 60,
-                  height: 60,
-                  placeholder: (context, url) =>
-                      Center(child: CircularProgressIndicator()),
-                  errorWidget: (context, url, error) => Icon(Icons.error),
-                ),
-              ),
+              buildTeamImg(teamInfo['imageUrl'], 50),
               SizedBox(width: 10),
               Expanded(
                 child: Column(
                   // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(teamInfo['team_name'], style: TextStyle(fontSize: 20)),
+                    Text(teamInfo['team_name'], style: TextStyle(fontSize: 18)),
                     SizedBox(height: 3),
                     Text(
                       Get.find<ChatInfoController>().content.value,
@@ -218,44 +210,5 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
-
-// GestureDetector buildTeamListItem(team) {
-//   return GestureDetector(
-//     onTap: () => Get.to(
-//       () => MessageScreen(
-//         peerUserImgUrl: team['imageUrl'],
-//         peerUserUid: team['uid'],
-//         peerUserTeamName: team['team_name'],
-//       ),
-//     ),
-//     child: Container(
-//       color: Colors.white,
-//       margin: const EdgeInsets.symmetric(vertical: 1),
-//       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-//       child: Row(
-//         children: [
-//           CircleAvatar(
-//               radius: 20,
-//               backgroundImage: Image.network(team['imageUrl']).image),
-//           SizedBox(width: 20),
-//           Expanded(
-//             child: Text(team['team_name'],
-//                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-//           ),
-//           IconButton(
-//             icon: Icon(Icons.send),
-//             onPressed: () => Get.to(
-//               () => MessageScreen(
-//                 peerUserImgUrl: team['imageUrl'],
-//                 peerUserUid: team['uid'],
-//                 peerUserTeamName: team['team_name'],
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     ),
-//   );
-// }
 
 }

@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:eacre/constants.dart';
 import 'package:eacre/controller/home_controller.dart';
-import 'package:eacre/controller/post_stream_controller.dart';
 import 'package:eacre/model/area_model.dart';
 import 'package:eacre/screen/create_post_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -47,14 +47,14 @@ class _CreatePostContainerState extends State<CreatePostContainer> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 5, top: 10),
-      padding: const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 0.0),
+      // margin: const EdgeInsets.only(top: 5),
+      padding: const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 4.0),
       color: Colors.white,
       child: Column(
         children: [
           userImgAndCreatePost(context),
           Divider(height: 10, thickness: 0.5),
-          viewButton(),
+          // viewButton(),
         ],
       ),
     );
@@ -95,7 +95,7 @@ class _CreatePostContainerState extends State<CreatePostContainer> {
                 ? imageUrl
                 : "https://www.freeiconspng.com/thumbs/login-icon/user-login-icon-14.png",
             placeholder: (context, url) =>
-                Center(child: CircularProgressIndicator()),
+                Container(color: kScaffoldColor),
             errorWidget: (context, url, error) => Icon(Icons.error),
           ),
         ),

@@ -17,6 +17,12 @@ class HomeController extends GetxController {
     super.onInit();
   }
 
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
+  }
+
   void limitInit(){
     limit(4);
   }
@@ -28,16 +34,20 @@ class HomeController extends GetxController {
         print("scroll Event!!");
         limit += limitIncrement;
         print(limit);
-      } else{
-        Get.snackbar('알림', '마지막 페이지입니다.', snackPosition: SnackPosition.BOTTOM);
       }
     }
   }
 
-  Future<void> getMaxLimit() async {
-    await FirebaseFirestore.instance.collection('post').get().then((value) {
-      maxLimit = value.docs.length;
-      print("maxLimit: $maxLimit");
+  // Future<void> getMaxLimit() async {
+  //   await FirebaseFirestore.instance.collection('post').get().then((value) {
+  //     maxLimit = value.docs.length;
+  //     print("maxLimit: $maxLimit");
+  //   });
+  // }
+
+  void getMaxLimit() {
+    FirebaseFirestore.instance.collection('post').where('time', isGreaterThan: DateTime.now()).snapshots().listen((event) {
+      maxLimit = event.docs.length;
     });
   }
 

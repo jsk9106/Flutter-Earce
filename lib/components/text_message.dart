@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 Container textMessage(message, bool isSender) {
   return Container(
-    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
     decoration: BoxDecoration(
       color: kShadowColor.withOpacity(isSender ? 1 : 0.3),
       borderRadius: BorderRadius.circular(10),

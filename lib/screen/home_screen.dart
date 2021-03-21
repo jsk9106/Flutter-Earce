@@ -1,5 +1,3 @@
-import 'package:eacre/components/build_post_list_item.dart';
-import 'package:eacre/components/build_title.dart';
 import 'package:eacre/components/components.dart';
 import 'package:eacre/constants.dart';
 import 'package:eacre/controller/home_controller.dart';
@@ -21,6 +19,20 @@ class _HomeScreenState extends State<HomeScreen> {
   User currentUser = FirebaseAuth.instance.currentUser;
   FocusNode _focusNode = FocusNode();
   String _searchText = "";
+  bool isFinish = false;
+  int maxLimitInt;
+
+  void getMaxLimit() {
+    FirebaseFirestore.instance
+        .collection('post')
+        .where('time', isGreaterThan: DateTime.now())
+        .snapshots()
+        .listen((event) {
+      setState(() {
+        maxLimitInt = event.docs.length;
+      });
+    });
+  }
 
   _HomeScreenState() {
     _filter.addListener(() {
@@ -32,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
+    getMaxLimit();
     controller.limitInit();
     super.initState();
   }
@@ -126,7 +139,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildPostList(snapshot) {
     List postResult = [];
-    String dropdownValue = controller.dropdownValue.value;
     for (DocumentSnapshot d in snapshot) {
       if (d['location'].contains(_searchText) |
           d['team_name'].contains(_searchText) |
@@ -138,9 +150,31 @@ class _HomeScreenState extends State<HomeScreen> {
     return ListView.builder(
       physics: BouncingScrollPhysics(),
       controller: controller.scrollController,
-      itemCount: postResult.length,
-      itemBuilder: (context, index) =>
-          BuildPostListItem(item: postResult[index]),
+      itemCount: postResult.length + 1,
+      itemBuilder: (context, index) {
+        if (index == postResult.length) {
+          if (index == maxLimitInt) {
+            return Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Text("마지막 매치입니다.", style: TextStyle(color: Colors.grey)),
+            );
+          } else if(_searchText.isNotEmpty) {
+            return Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Text("'$_searchText' 검색 결과", style: TextStyle(color: Colors.grey)),
+            );
+          }
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 15),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+        return BuildPostListItem(item: postResult[index]);
+      },
     );
   }
 }

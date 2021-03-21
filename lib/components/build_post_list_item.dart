@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eacre/components/match_dialog.dart';
 import 'package:eacre/controller/ago_controller.dart';
@@ -7,6 +6,7 @@ import 'package:eacre/screen/message_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'components.dart';
 
 class BuildPostListItem extends StatelessWidget {
   final QueryDocumentSnapshot item;
@@ -34,16 +34,7 @@ class BuildPostListItem extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    ClipOval(
-                      child: CachedNetworkImage(
-                        width: 45,
-                        height: 45,
-                        imageUrl: item['imageUrl'],
-                        placeholder: (context, url) =>
-                            Center(child: CircularProgressIndicator()),
-                        errorWidget: (context, url, error) => Icon(Icons.error),
-                      ),
-                    ),
+                    buildTeamImg(item['imageUrl'], 45),
                     SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,4 +130,6 @@ class BuildPostListItem extends StatelessWidget {
       ],
     );
   }
+
+
 }
