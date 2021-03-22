@@ -9,7 +9,7 @@ Container textMessage(message, bool isSender) {
       borderRadius: BorderRadius.circular(10),
     ),
     child: Text(
-      message['content'].toString(),
+      message['content'],
       style:
       TextStyle(color: isSender ? Colors.white : Colors.black),
     ),

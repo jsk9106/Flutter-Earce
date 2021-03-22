@@ -4,9 +4,11 @@ import 'package:eacre/components/components.dart';
 import 'package:eacre/components/message_status_dot.dart';
 import 'package:eacre/components/text_message.dart';
 import 'package:eacre/constants.dart';
+import 'package:eacre/controller/message_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class MessageScreen extends StatefulWidget {
   final String peerUserUid;
@@ -25,9 +27,11 @@ class MessageScreen extends StatefulWidget {
 }
 
 class _MessageScreenState extends State<MessageScreen> {
+  final MessageController controller = Get.put(MessageController());
   String currentUserUid = FirebaseAuth.instance.currentUser.uid;
   String chatId;
   bool isSender;
+  int maxLimit;
 
   void createChatId() {
     if (currentUserUid.hashCode <= widget.peerUserUid.hashCode) {
@@ -37,9 +41,36 @@ class _MessageScreenState extends State<MessageScreen> {
     }
   }
 
+  // void getMaxLimit() {
+  //   FirebaseFirestore.instance
+  //       .collection('chat')
+  //       .doc(chatId)
+  //       .collection(chatId)
+  //       .snapshots()
+  //       .listen((event) {
+  //       maxLimit = event.docs.length;
+  //     print(maxLimit);
+  //     controller.getMaxLimit(event.docs.length);
+  //   });
+  // }
+
+  Future<void> getMaxLimit() async {
+    await FirebaseFirestore.instance
+        .collection('chat')
+        .doc(chatId)
+        .collection(chatId)
+        .get()
+        .then((value) {
+      print(value.docs.length);
+      maxLimit = value.docs.length;
+      controller.getMaxLimit(maxLimit);
+    });
+  }
+
   @override
   void initState() {
     createChatId();
+    controller.initLimit();
     super.initState();
   }
 
@@ -49,25 +80,29 @@ class _MessageScreenState extends State<MessageScreen> {
       appBar: messageAppBar(),
       body: Column(
         children: [
-          Expanded(
-            child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('chat')
-                  .doc(chatId)
-                  .collection(chatId)
-                  .orderBy('sendTime', descending: true)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData)
-                  return Center(child: CircularProgressIndicator());
-                return buildMessageList(context, snapshot.data.docs);
-              },
+          Obx(
+            () => Expanded(
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection('chat')
+                    .doc(chatId)
+                    .collection(chatId)
+                    .orderBy('sendTime', descending: true)
+                    .limit(controller.limit.value)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData)
+                    return Center(child: CircularProgressIndicator());
+                  return buildMessageList(context, snapshot.data.docs);
+                },
+              ),
             ),
           ),
           ChatInputField(
             currentUserUid: currentUserUid,
             peerUserUid: widget.peerUserUid,
             chatId: chatId,
+            scrollController: controller.scrollController,
           ),
         ],
       ),
@@ -75,24 +110,50 @@ class _MessageScreenState extends State<MessageScreen> {
   }
 
   Widget buildMessageList(context, snapshot) {
+    getMaxLimit();
+    List sendTimeResult = [];
+    String time;
+    for (DocumentSnapshot d in snapshot) {
+      time = DateFormat("a h:mm").format(d['sendTime'].toDate());
+      if (sendTimeResult.contains(time)) {
+        sendTimeResult.insert(sendTimeResult.length - 1, "");
+      } else {
+        sendTimeResult.add(time);
+      }
+    }
+    // print(sendTimeResult);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15),
       child: ListView.builder(
+        controller: controller.scrollController,
         reverse: true,
         physics: BouncingScrollPhysics(),
-        itemCount: snapshot.length,
+        itemCount: snapshot.length + 1,
         itemBuilder: (context, index) {
-          return buildMessageListItem(context, snapshot[index]);
+          if (index == snapshot.length) {
+            if (index == maxLimit || index < 20) return Container();
+            return Center(
+                child: Text("불러오는 중..", style: TextStyle(color: Colors.grey)));
+          }
+          return buildMessageListItem(
+              context, snapshot[index], sendTimeResult[index]);
         },
       ),
     );
   }
 
-  Widget buildMessageListItem(context, message) {
+  Widget buildMessageListItem(context, message, sendTimeResultItem) {
     if (currentUserUid == message['idFrom']) {
       isSender = true;
     } else {
       isSender = false;
+    }
+
+    String sendTime;
+    if (sendTimeResultItem.contains("AM")) {
+      sendTime = sendTimeResultItem.replaceAll("AM", "오전");
+    } else {
+      sendTime = sendTimeResultItem.replaceAll("PM", "오후");
     }
 
     Widget messageCheck() {
@@ -120,8 +181,35 @@ class _MessageScreenState extends State<MessageScreen> {
             buildTeamImg(widget.peerUserImgUrl, 40),
             SizedBox(width: 10),
           ],
-          if (isSender) messageStatusDot(message['messageStatus']),
+          Container(
+            height: 35,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (isSender) messageStatusDot(message['messageStatus']),
+                if (isSender)
+                  Container(
+                    margin: const EdgeInsets.only(right: 3),
+                    child: Text(
+                      sendTime,
+                      style: TextStyle(color: Colors.black54, fontSize: 10),
+                    ),
+                  ),
+              ],
+            ),
+          ),
           messageCheck(),
+          if (!isSender)
+            Container(
+              height: 35,
+              alignment: Alignment.bottomCenter,
+              margin: const EdgeInsets.only(left: 3),
+              child: Text(
+                sendTime,
+                style: TextStyle(color: Colors.black54, fontSize: 10),
+              ),
+            ),
         ],
       ),
     );

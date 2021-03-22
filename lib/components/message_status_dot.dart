@@ -4,7 +4,7 @@ import '../constants.dart';
 
 Widget messageStatusDot(bool messageStatus) {
   return Container(
-    margin: EdgeInsets.only(right: 10),
+    margin: const EdgeInsets.only(right: 3),
     height: 12,
     width: 12,
     decoration: BoxDecoration(

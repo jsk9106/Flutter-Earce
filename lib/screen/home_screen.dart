@@ -22,15 +22,27 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isFinish = false;
   int maxLimitInt;
 
-  void getMaxLimit() {
-    FirebaseFirestore.instance
+  // void getMaxLimit() {
+  //   FirebaseFirestore.instance
+  //       .collection('post')
+  //       .where('time', isGreaterThan: DateTime.now())
+  //       .snapshots()
+  //       .listen((event) {
+  //     maxLimitInt = event.docs.length;
+  //     print(maxLimitInt);
+  //     setState(() {});
+  //     controller.getMaxLimit(event.docs.length);
+  //   });
+  // }
+
+  Future<void> getMaxLimit() async{
+    await FirebaseFirestore.instance
         .collection('post')
         .where('time', isGreaterThan: DateTime.now())
-        .snapshots()
-        .listen((event) {
-      setState(() {
-        maxLimitInt = event.docs.length;
-      });
+        .get().then((value) {
+          print(value.docs.length);
+       maxLimitInt = value.docs.length;
+       controller.getMaxLimit(maxLimitInt);
     });
   }
 
@@ -44,7 +56,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    getMaxLimit();
     controller.limitInit();
     super.initState();
   }
@@ -86,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: TextField(
         controller: _filter,
         focusNode: _focusNode,
+        cursorColor: Colors.white,
         style: TextStyle(
           color: Colors.white,
         ),
@@ -138,6 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildPostList(snapshot) {
+    getMaxLimit();
     List postResult = [];
     for (DocumentSnapshot d in snapshot) {
       if (d['location'].contains(_searchText) |
@@ -159,11 +172,12 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Text("마지막 매치입니다.", style: TextStyle(color: Colors.grey)),
             );
-          } else if(_searchText.isNotEmpty) {
+          } else if (_searchText.isNotEmpty) {
             return Container(
               alignment: Alignment.center,
               padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Text("'$_searchText' 검색 결과", style: TextStyle(color: Colors.grey)),
+              child: Text("'$_searchText' 검색 결과",
+                  style: TextStyle(color: Colors.grey)),
             );
           }
           return Center(

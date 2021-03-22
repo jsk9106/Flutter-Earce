@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:eacre/controller/chatInfo_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -10,12 +9,14 @@ class ChatInputField extends StatelessWidget {
   final String peerUserUid;
   final String chatId;
   final TextEditingController inputMessage = TextEditingController();
+  final ScrollController scrollController;
 
   ChatInputField({
     Key key,
     @required this.currentUserUid,
     @required this.peerUserUid,
     @required this.chatId,
+    @required this.scrollController,
   }) : super(key: key);
 
   void send() {
@@ -45,13 +46,12 @@ class ChatInputField extends StatelessWidget {
       });
 
       // 채팅방에 user정보 한 번만 업로드
-      Future<DocumentSnapshot> chatInfo = FirebaseFirestore.instance.collection('chat').doc(chatId).get();
-      // chatInfo.asStream().forEach((element) {
-      //   print(element['user1']);
-      // });
-      chatInfo.asStream().listen((event) {
-        // print("eventData: ${event.data()}");
-        if(event.data() == null){
+      FirebaseFirestore.instance
+          .collection('chat')
+          .doc(chatId)
+          .get()
+          .then((value) {
+        if (value.data() == null) {
           FirebaseFirestore.instance.collection('chat').doc(chatId).set({
             'user1': currentUserUid,
             'user2': peerUserUid,
@@ -59,6 +59,7 @@ class ChatInputField extends StatelessWidget {
         }
       });
 
+      scrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
     } else {
       // Fluttertoast.showToast(msg: 'Nothing to send');
       Get.snackbar("알림", "메세지가 없습니다", colorText: Colors.white);

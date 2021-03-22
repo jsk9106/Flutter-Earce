@@ -60,29 +60,29 @@ class _CreatePostContainerState extends State<CreatePostContainer> {
     );
   }
 
-  Container viewButton() {
-    return Container(
-      height: 40.0,
-      child: DropdownButton<String>(
-        hint: Text("지역 선택"),
-        value: dropdownValue,
-        underline: Container(),
-        style: TextStyle(color: Colors.black, fontSize: 14),
-        onChanged: (String newValue) {
-          setState(() {
-            dropdownValue = newValue;
-          });
-          controller.areaChange(dropdownValue);
-        },
-        items: areaList.map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }).toList(),
-      ),
-    );
-  }
+  // Container viewButton() {
+  //   return Container(
+  //     height: 40.0,
+  //     child: DropdownButton<String>(
+  //       hint: Text("지역 선택"),
+  //       value: dropdownValue,
+  //       underline: Container(),
+  //       style: TextStyle(color: Colors.black, fontSize: 14),
+  //       onChanged: (String newValue) {
+  //         setState(() {
+  //           dropdownValue = newValue;
+  //         });
+  //         controller.areaChange(dropdownValue);
+  //       },
+  //       items: areaList.map<DropdownMenuItem<String>>((String value) {
+  //         return DropdownMenuItem<String>(
+  //           value: value,
+  //           child: Text(value),
+  //         );
+  //       }).toList(),
+  //     ),
+  //   );
+  // }
 
   Row userImgAndCreatePost(BuildContext context) {
     return Row(
