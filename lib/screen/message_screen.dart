@@ -93,7 +93,10 @@ class _MessageScreenState extends State<MessageScreen> {
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData)
-                    return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(kShadowColor)));
+                    return Center(
+                        child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(kShadowColor)));
                   return buildMessageList(context, snapshot.data.docs);
                 },
               ),
@@ -112,6 +115,7 @@ class _MessageScreenState extends State<MessageScreen> {
 
   Widget buildMessageList(context, snapshot) {
     getMaxLimit();
+    // 보낸시간 가져오기
     List sendTimeResult = [];
     String time;
     for (DocumentSnapshot d in snapshot) {
@@ -122,7 +126,19 @@ class _MessageScreenState extends State<MessageScreen> {
         sendTimeResult.add(time);
       }
     }
-    // print(sendTimeResult);
+
+    // 보낸 날짜 가져오기
+    List dateResult = [];
+    String date;
+    for (DocumentSnapshot d in snapshot) {
+      date = DateFormat('yyyy년 M월 dd일 EEEE').format(d['sendTime'].toDate());
+      if (dateResult.contains(date)) {
+        dateResult.insert(dateResult.length - 1, '');
+      } else {
+        dateResult.add(date);
+      }
+    }
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15),
       child: ListView.builder(
@@ -136,20 +152,23 @@ class _MessageScreenState extends State<MessageScreen> {
             return Center(
                 child: Text("불러오는 중..", style: TextStyle(color: Colors.grey)));
           }
-          return buildMessageListItem(
-              context, snapshot[index], sendTimeResult[index]);
+          return buildMessageListItem(context, snapshot[index],
+              sendTimeResult[index], dateResult[index]);
         },
       ),
     );
   }
 
-  Widget buildMessageListItem(context, message, sendTimeResultItem) {
+  Widget buildMessageListItem(
+      context, message, sendTimeResultItem, dateResultItem) {
+    // 보낸 사람 체크
     if (currentUserUid == message['idFrom']) {
       isSender = true;
     } else {
       isSender = false;
     }
 
+    // 보낸 시간 리플레이스
     String sendTime;
     if (sendTimeResultItem.contains("AM")) {
       sendTime = sendTimeResultItem.replaceAll("AM", "오전");
@@ -157,6 +176,25 @@ class _MessageScreenState extends State<MessageScreen> {
       sendTime = sendTimeResultItem.replaceAll("PM", "오후");
     }
 
+    // 보낸 날짜 리플레이스
+    String sendDate;
+    if (dateResultItem.contains("Monday")) {
+      sendDate = dateResultItem.replaceAll("Monday", "월요일");
+    } else if (dateResultItem.contains("Tuesday")) {
+      sendDate = dateResultItem.replaceAll("Tuesday", "화요일");
+    } else if (dateResultItem.contains("Wednesday")) {
+      sendDate = dateResultItem.replaceAll("Wednesday", "수요일");
+    } else if (dateResultItem.contains("Thursday")) {
+      sendDate = dateResultItem.replaceAll("Thursday", "목요일");
+    } else if (dateResultItem.contains("Friday")) {
+      sendDate = dateResultItem.replaceAll("Friday", "금요일");
+    } else if (dateResultItem.contains("Saturday")) {
+      sendDate = dateResultItem.replaceAll("Saturday", "토요일");
+    } else if (dateResultItem.contains("Sunday")) {
+      sendDate = dateResultItem.replaceAll("Sunday", "일요일");
+    }
+
+    // 메세지 타입 체크
     Widget messageCheck() {
       if (message['type'] == 0) {
         return textMessage(message, isSender);
@@ -169,26 +207,51 @@ class _MessageScreenState extends State<MessageScreen> {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment:
-            isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
+      child: Column(
         children: [
-          if (!isSender) ...[
-            buildTeamImg(widget.peerUserImgUrl, 40),
-            SizedBox(width: 10),
-          ],
-          if (isSender)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                messageStatusDot(message['messageStatus']),
-                _buildSendTime(sendTime),
+          if (dateResultItem != '') _buildSendDate(sendDate),
+          if (dateResultItem != '') SizedBox(height: 20),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment:
+                isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
+            children: [
+              if (!isSender) ...[
+                buildTeamImg(widget.peerUserImgUrl, 40),
+                SizedBox(width: 10),
               ],
-            ),
-          messageCheck(),
-          if (!isSender) _buildSendTime(sendTime),
+              if (isSender)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    messageStatusDot(message['messageStatus']),
+                    _buildSendTime(sendTime),
+                  ],
+                ),
+              messageCheck(),
+              if (!isSender) _buildSendTime(sendTime),
+            ],
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSendDate(String sendDate) {
+    return Container(
+      alignment: Alignment.center,
+      width: Get.size.width * 0.4,
+      height: 30,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(40),
+        color: kSecondaryDarkColor,
+      ),
+      child: Text(
+        sendDate,
+        style: TextStyle(
+          color: kShadowColor,
+          fontSize: 12,
+        ),
       ),
     );
   }
