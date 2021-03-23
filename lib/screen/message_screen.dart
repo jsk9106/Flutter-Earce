@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eacre/components/chat_input_field.dart';
 import 'package:eacre/components/components.dart';
+import 'package:eacre/components/image_message.dart';
 import 'package:eacre/components/message_status_dot.dart';
 import 'package:eacre/components/text_message.dart';
 import 'package:eacre/constants.dart';
@@ -92,7 +93,7 @@ class _MessageScreenState extends State<MessageScreen> {
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData)
-                    return Center(child: CircularProgressIndicator());
+                    return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(kShadowColor)));
                   return buildMessageList(context, snapshot.data.docs);
                 },
               ),
@@ -159,21 +160,17 @@ class _MessageScreenState extends State<MessageScreen> {
     Widget messageCheck() {
       if (message['type'] == 0) {
         return textMessage(message, isSender);
-      }
-      // else if (message['messageType']['audio']) {
-      //   return audioMessage(context, message);
-      // } else if (message['messageType']['video']) {
-      //   return videoMessage(context, message);
-      // } else {
-      //   return SizedBox();
-      // }
-      else
+      } else if (message['type'] == 1) {
+        return imageMessage(message);
+      } else {
         return SizedBox();
+      }
     }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment:
             isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
@@ -181,36 +178,27 @@ class _MessageScreenState extends State<MessageScreen> {
             buildTeamImg(widget.peerUserImgUrl, 40),
             SizedBox(width: 10),
           ],
-          Container(
-            height: 35,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
+          if (isSender)
+            Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                if (isSender) messageStatusDot(message['messageStatus']),
-                if (isSender)
-                  Container(
-                    margin: const EdgeInsets.only(right: 3),
-                    child: Text(
-                      sendTime,
-                      style: TextStyle(color: Colors.black54, fontSize: 10),
-                    ),
-                  ),
+                messageStatusDot(message['messageStatus']),
+                _buildSendTime(sendTime),
               ],
             ),
-          ),
           messageCheck(),
-          if (!isSender)
-            Container(
-              height: 35,
-              alignment: Alignment.bottomCenter,
-              margin: const EdgeInsets.only(left: 3),
-              child: Text(
-                sendTime,
-                style: TextStyle(color: Colors.black54, fontSize: 10),
-              ),
-            ),
+          if (!isSender) _buildSendTime(sendTime),
         ],
+      ),
+    );
+  }
+
+  Container _buildSendTime(String sendTime) {
+    return Container(
+      margin: isSender ? EdgeInsets.only(right: 3) : EdgeInsets.only(left: 3),
+      child: Text(
+        sendTime,
+        style: TextStyle(color: Colors.black54, fontSize: 10),
       ),
     );
   }

@@ -143,19 +143,60 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget buildChatListItem(chat, User currentUser) {
     String result1 = chat.id.replaceAll(currentUser.uid, "");
     String result2 = result1.replaceAll("-", "");
-    return Container(
-      color: Colors.white,
-      child: StreamBuilder(
-        // 받아온 리스트 값으로 채팅 방 목록 만든 뒤 상대 유저 uid값을 구해서 스트림 빌더로 팀 콜렉션 호출
-        stream: FirebaseFirestore.instance
-            .collection('team')
-            .where('uid', isEqualTo: result2)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData)
-            return Center(child: CircularProgressIndicator());
-          return _buildTeamInfo(snapshot.data.docs, chat.id);
-        },
+    return Dismissible(
+      key: Key(chat.id),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (DismissDirection direction) async {
+        return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("알림"),
+              content: const Text("채팅방을 삭제하시겠습니까?"),
+              actions: <Widget>[
+                FlatButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: const Text("삭제")
+                ),
+                FlatButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text("취소"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      onDismissed: (direction) {
+        Get.find<ChatInfoController>().deleteChatRoom(chat.id);
+      },
+      background: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          color: kDismissColor,
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Row(
+          children: [
+            Spacer(),
+            Icon(Icons.delete, color: kShadowColor),
+          ],
+        ),
+      ),
+      child: Container(
+        color: Colors.white,
+        child: StreamBuilder(
+          // 받아온 리스트 값으로 채팅 방 목록 만든 뒤 상대 유저 uid값을 구해서 스트림 빌더로 팀 콜렉션 호출
+          stream: FirebaseFirestore.instance
+              .collection('team')
+              .where('uid', isEqualTo: result2)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData)
+              return Center(child: CircularProgressIndicator());
+            return _buildTeamInfo(snapshot.data.docs, chat.id);
+          },
+        ),
       ),
     );
   }

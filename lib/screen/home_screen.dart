@@ -141,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData)
-              return Center(child: CircularProgressIndicator());
+              return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(kShadowColor)));
             return _buildPostList(snapshot.data.docs);
           },
         ),
@@ -183,7 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return Center(
             child: Padding(
               padding: const EdgeInsets.only(top: 15),
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(kShadowColor)),
             ),
           );
         }

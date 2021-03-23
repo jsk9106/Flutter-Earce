@@ -39,6 +39,7 @@ dependencies:
   get: ^3.26.0
   flutter_facebook_auth: ^2.0.2+1
   cached_network_image: ^2.5.0
+  photo_view: ^0.10.3
 
 dev_dependencies:
   flutter_test:

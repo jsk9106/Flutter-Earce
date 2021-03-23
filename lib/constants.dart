@@ -22,3 +22,4 @@ const kTitleTextDarkColor = Colors.white;
 
 // const kShadowColor = Color(0xFF364564);
 const kShadowColor = Color(0xFFFF97B3);
+const kDismissColor = Color(0xFFFFE6E6);

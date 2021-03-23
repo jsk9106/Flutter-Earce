@@ -9,6 +9,6 @@ String convertToAgo(DateTime input) {
   } else if (diff.inSeconds >= 1) {
     return '${diff.inSeconds}초 전';
   } else {
-    return '방금전';
+    return '방금 전';
   }
 }
