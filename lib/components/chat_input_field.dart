@@ -13,6 +13,8 @@ class ChatInputField extends StatefulWidget {
   final String peerUserUid;
   final String chatId;
   final ScrollController scrollController;
+  final String currentUserTeamName;
+  final String peerUserTeamName;
 
   ChatInputField({
     Key key,
@@ -20,6 +22,8 @@ class ChatInputField extends StatefulWidget {
     @required this.peerUserUid,
     @required this.chatId,
     @required this.scrollController,
+    @required this.currentUserTeamName,
+    @required this.peerUserTeamName,
   }) : super(key: key);
 
   @override
@@ -130,8 +134,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
           .then((value) {
         if (value.data() == null) {
           FirebaseFirestore.instance.collection('chat').doc(widget.chatId).set({
-            'user1': widget.currentUserUid,
-            'user2': widget.peerUserUid,
+            // 'user1': widget.currentUserUid,
+            // 'user2': widget.peerUserUid,
+            'team_name': "${widget.currentUserTeamName} - ${widget.peerUserTeamName}"
           });
         }
       });
@@ -140,7 +145,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
           duration: Duration(milliseconds: 300), curve: Curves.easeOut);
     } else {
       // Fluttertoast.showToast(msg: 'Nothing to send');
-      Get.snackbar("알림", "메세지가 없습니다", backgroundColor: kShadowColor.withOpacity(0.5), colorText: Colors.white);
+      Get.snackbar("알림", "메세지가 없습니다",
+          backgroundColor: kShadowColor.withOpacity(0.5),
+          colorText: Colors.white);
     }
   }
 
@@ -299,9 +306,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
       background: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-          color: kDismissColor,
-          borderRadius: BorderRadius.circular(15)
-        ),
+            color: kDismissColor, borderRadius: BorderRadius.circular(15)),
         child: Row(
           children: [
             Spacer(),

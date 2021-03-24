@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eacre/constants.dart';
 import 'package:eacre/screen/message_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -14,6 +15,7 @@ class _TeamListScreenState extends State<TeamListScreen> {
   final TextEditingController _filter = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   String _searchText = '';
+  User currentUser = FirebaseAuth.instance.currentUser;
 
   _TeamListScreenState(){
     _filter.addListener(() {
@@ -40,7 +42,7 @@ class _TeamListScreenState extends State<TeamListScreen> {
   Widget _buildBody() {
     return Expanded(
       child: FutureBuilder(
-        future: FirebaseFirestore.instance.collection('team').get(),
+        future: FirebaseFirestore.instance.collection('team').where('uid', isNotEqualTo: currentUser.uid).get(),
         builder: (context, snapshot) {
           if (!snapshot.hasData)
             return Center(child: CircularProgressIndicator());

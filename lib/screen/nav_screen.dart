@@ -2,7 +2,7 @@ import 'package:eacre/components/custom_tab_bar.dart';
 import 'package:eacre/screen/home_screen.dart';
 import 'package:eacre/screen/match_screen.dart';
 import 'package:eacre/screen/chat_screen.dart';
-import 'package:eacre/screen/search_screen.dart';
+import 'package:eacre/screen/setting_screen.dart';
 import 'package:flutter/material.dart';
 
 class NavScreen extends StatefulWidget {
@@ -16,14 +16,14 @@ class _NavScreenState extends State<NavScreen> {
   final List<Widget> _screens = [
     HomeScreen(),
     ChatScreen(),
-    SearchScreen(),
     MatchScreen(),
+    SettingScreen(),
   ];
   final List<IconData> _icons = [
     Icons.home,
     Icons.send,
-    Icons.search,
     Icons.sports_soccer,
+    Icons.settings,
   ];
   int _selectedIndex = 0;
 

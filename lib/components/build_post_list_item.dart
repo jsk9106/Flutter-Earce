@@ -20,7 +20,6 @@ class BuildPostListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Stack(
       children: [
         Opacity(
@@ -88,14 +87,18 @@ class BuildPostListItem extends StatelessWidget {
                                 icon: Icon(Icons.done),
                                 onPressed: () async {
                                   // await matchController.manageMatch(context, item.id, MatchDo.completed);
-                                  if (item['isMatched']) return;
-                                  else Get.dialog(matchDialog(context, item.id, MatchDo.completed));
+                                  if (item['isMatched'])
+                                    return;
+                                  else
+                                    Get.dialog(matchDialog(
+                                        context, item.id, MatchDo.completed));
                                 },
                               ),
                               IconButton(
                                 icon: Icon(Icons.delete),
                                 onPressed: () async {
-                                  Get.dialog(matchDialog(context, item.id, MatchDo.delete));
+                                  Get.dialog(matchDialog(
+                                      context, item.id, MatchDo.delete));
                                 },
                               )
                             ],
@@ -130,6 +133,4 @@ class BuildPostListItem extends StatelessWidget {
       ],
     );
   }
-
-
 }

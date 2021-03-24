@@ -5,18 +5,21 @@ class Field extends StatelessWidget {
   final controller;
   final String labelText;
   final String hintText;
+  final FocusNode focusNode;
 
   const Field({
     Key key,
     @required this.controller,
     @required this.labelText,
     @required this.hintText,
+    @required this.focusNode,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      focusNode: focusNode,
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: TextStyle(color: kBodyTextColorDark),

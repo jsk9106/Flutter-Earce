@@ -20,6 +20,7 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
   final User currentUser = FirebaseAuth.instance.currentUser;
   final teamNameController = TextEditingController();
   final imageController = TextEditingController();
+  final FocusNode focusNode = FocusNode();
 
   String _teamImageURL = "";
   File _image;
@@ -125,6 +126,7 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
                 SizedBox(height: 30),
                 Field(
                   controller: teamNameController,
+                  focusNode: focusNode,
                   labelText: "팀 명",
                   hintText: "팀 명을 적어주세요",
                 ),
@@ -139,6 +141,7 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
                   color: kShadowColor,
                   elevation: 0,
                   onPressed: () async{
+                    if(focusNode.hasFocus) focusNode.unfocus();
                     setState(() {
                       isUid = 'load';
                     });

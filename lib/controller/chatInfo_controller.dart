@@ -17,7 +17,7 @@ class ChatInfoController extends GetxController{
       } else{
         content(event.docs.toList().last['content']);
       }
-    });
+    }).onError((error) => print(error));
   }
 
   void getAgo(String chatId){
@@ -26,7 +26,7 @@ class ChatInfoController extends GetxController{
         return;
       }
       ago(convertToAgo(event.docs.toList().last['sendTime'].toDate()));
-    });
+    }).onError((error) => print(error));
   }
   
   void deleteChatRoom(String chatId){

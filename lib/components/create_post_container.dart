@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eacre/constants.dart';
 import 'package:eacre/controller/home_controller.dart';
-import 'package:eacre/model/area_model.dart';
 import 'package:eacre/screen/create_post_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -22,20 +21,19 @@ class CreatePostContainer extends StatefulWidget {
 
 class _CreatePostContainerState extends State<CreatePostContainer> {
   final HomeController controller = Get.put(HomeController());
-  String imageUrl;
-  String dropdownValue;
+  String currentUserImageUrl;
+  // String dropdownValue;
 
-  void getPhoto() {
-    FirebaseFirestore.instance
+  Future<void> getPhoto() async{
+    await FirebaseFirestore.instance
         .collection("team")
         .where('uid', isEqualTo: FirebaseAuth.instance.currentUser.uid)
-        .snapshots()
-        .listen((event) {
+        .get()
+        .then((value) {
       setState(() {
-        imageUrl = event.docs[0]["imageUrl"];
-        // print(imageUrl);
+        currentUserImageUrl = value.docs[0]["imageUrl"];
       });
-    });
+    }).catchError((error) => print("error: $error"));
   }
 
   @override
@@ -91,11 +89,11 @@ class _CreatePostContainerState extends State<CreatePostContainer> {
           child: CachedNetworkImage(
             width: 45,
             height: 45,
-            imageUrl: imageUrl != null
-                ? imageUrl
+            fit: BoxFit.cover,
+            imageUrl: currentUserImageUrl != null
+                ? currentUserImageUrl
                 : "https://www.freeiconspng.com/thumbs/login-icon/user-login-icon-14.png",
-            placeholder: (context, url) =>
-                Container(color: kScaffoldColor),
+            placeholder: (context, url) => Container(color: kScaffoldColor),
             errorWidget: (context, url, error) => Icon(Icons.error),
           ),
         ),

@@ -29,6 +29,12 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   @override
+  void dispose() {
+    _filter.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
@@ -113,7 +119,7 @@ class _ChatScreenState extends State<ChatScreen> {
         stream: FirebaseFirestore.instance.collection('chat').snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData)
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(kShadowColor)));
           return buildChatList(snapshot.data.docs);
         },
       ),
@@ -123,10 +129,15 @@ class _ChatScreenState extends State<ChatScreen> {
   ListView buildChatList(snapshot) {
     User currentUser = FirebaseAuth.instance.currentUser;
     List searchResult = [];
-    // 가져온 채팅 방 목록에서 현재 유저의 uid값이 들어간 문서만 리스트에 담기
     for (DocumentSnapshot d in snapshot) {
-      if (d.id.contains(currentUser.uid)) {
-        searchResult.add(d);
+      if(_searchText.isEmpty){ // 검색 값이 없다면
+        if (d.id.contains(currentUser.uid)) { // 가져온 채팅 방 목록에서 현재 유저의 uid값이 들어간 문서만 리스트에 담기
+          searchResult.add(d);
+        }
+      } else{ // 검색 값이 있다면
+        if(d.id.contains(currentUser.uid) && d['team_name'].contains(_searchText)){ // 본인의 채팅방 중 검색 값이 들어가 있는 채팅방(팀 이름)
+          searchResult.add(d);
+        }
       }
     }
 
@@ -186,14 +197,14 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Container(
         color: Colors.white,
         child: StreamBuilder(
-          // 받아온 리스트 값으로 채팅 방 목록 만든 뒤 상대 유저 uid값을 구해서 스트림 빌더로 팀 콜렉션 호출
+          // 받아온 리스트 값으로 상대 유저 uid값을 구해서 스트림 빌더로 팀 콜렉션 호출
           stream: FirebaseFirestore.instance
               .collection('team')
               .where('uid', isEqualTo: result2)
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData)
-              return Center(child: CircularProgressIndicator());
+              return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(kShadowColor)));
             return _buildTeamInfo(snapshot.data.docs, chat.id);
           },
         ),

@@ -21,19 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _searchText = "";
   bool isFinish = false;
   int maxLimitInt;
-
-  // void getMaxLimit() {
-  //   FirebaseFirestore.instance
-  //       .collection('post')
-  //       .where('time', isGreaterThan: DateTime.now())
-  //       .snapshots()
-  //       .listen((event) {
-  //     maxLimitInt = event.docs.length;
-  //     print(maxLimitInt);
-  //     setState(() {});
-  //     controller.getMaxLimit(event.docs.length);
-  //   });
-  // }
+  String currentUserImageUrl;
 
   Future<void> getMaxLimit() async{
     await FirebaseFirestore.instance

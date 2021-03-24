@@ -15,6 +15,7 @@ class _MatchScreenState extends State<MatchScreen> {
   FocusNode _focusNode = FocusNode();
   String _searchText = "";
   User currentUser = FirebaseAuth.instance.currentUser;
+  String currentUserImageUrl;
 
   _MatchScreenState() {
     _filter.addListener(() {
@@ -43,10 +44,11 @@ class _MatchScreenState extends State<MatchScreen> {
         stream: FirebaseFirestore.instance
             .collection('post')
             .where('uid', isEqualTo: currentUser.uid)
+            .orderBy('time')
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData)
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(kShadowColor)));
           return buildList(snapshot.data.docs);
         },
       ),

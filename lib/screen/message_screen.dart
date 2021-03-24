@@ -33,6 +33,7 @@ class _MessageScreenState extends State<MessageScreen> {
   String chatId;
   bool isSender;
   int maxLimit;
+  String currentUserTeamName;
 
   void createChatId() {
     if (currentUserUid.hashCode <= widget.peerUserUid.hashCode) {
@@ -55,6 +56,7 @@ class _MessageScreenState extends State<MessageScreen> {
   //   });
   // }
 
+  // 메세지의 총 갯수 가져오기
   Future<void> getMaxLimit() async {
     await FirebaseFirestore.instance
         .collection('chat')
@@ -68,10 +70,21 @@ class _MessageScreenState extends State<MessageScreen> {
     });
   }
 
+  // 현재 유저의 팀 이름 가져오기
+  Future<void> getCurrentUserTeamName() async{
+    await FirebaseFirestore.instance.collection('team').where('uid', isEqualTo: currentUserUid).get().then((value) {
+      print(value.docs[0]['team_name']);
+      setState(() {
+        currentUserTeamName = value.docs[0]['team_name'];
+      });
+    }).catchError((error) => print("error: $error"));
+  }
+
   @override
   void initState() {
     createChatId();
     controller.initLimit();
+    getCurrentUserTeamName();
     super.initState();
   }
 
@@ -107,6 +120,8 @@ class _MessageScreenState extends State<MessageScreen> {
             peerUserUid: widget.peerUserUid,
             chatId: chatId,
             scrollController: controller.scrollController,
+            peerUserTeamName: widget.peerUserTeamName,
+            currentUserTeamName: currentUserTeamName,
           ),
         ],
       ),
@@ -114,7 +129,7 @@ class _MessageScreenState extends State<MessageScreen> {
   }
 
   Widget buildMessageList(context, snapshot) {
-    getMaxLimit();
+    getMaxLimit(); // 메세지 총 갯수 가져오기
     // 보낸시간 가져오기
     List sendTimeResult = [];
     String time;

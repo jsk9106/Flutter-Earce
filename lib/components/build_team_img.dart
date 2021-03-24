@@ -7,7 +7,7 @@ ClipOval buildTeamImg(var item, double size) {
     child: CachedNetworkImage(
       width: size,
       height: size,
-      imageUrl: item,
+      imageUrl: item == null ? "https://www.freeiconspng.com/thumbs/login-icon/user-login-icon-14.png" : item,
       placeholder: (context, url) =>
           Container(color: kScaffoldColor),
       errorWidget: (context, url, error) => Icon(Icons.error),
