@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'components.dart';
 
-class BuildPostListItem extends StatelessWidget {
+class BuildPostListItem extends StatefulWidget {
   final QueryDocumentSnapshot item;
   final bool isMyMatch;
 
@@ -19,11 +19,43 @@ class BuildPostListItem extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _BuildPostListItemState createState() => _BuildPostListItemState();
+}
+
+class _BuildPostListItemState extends State<BuildPostListItem> {
+  String postUserTeamName;
+  String postUserImageUrl;
+  String postUserMessageToken;
+
+  Future<void> getUserInfo() async {
+    await FirebaseFirestore.instance
+        .collection('team')
+        .where('uid', isEqualTo: widget.item['uid'])
+        .get()
+        .then((value) {
+      if (value.docs.length == 0) {
+        return;
+      } else {
+        if (mounted) // 이상한 에러 뜨는거 막는거
+          postUserTeamName = value.docs[0]['team_name'];
+          postUserImageUrl = value.docs[0]['imageUrl'];
+          postUserMessageToken = value.docs[0]['messageToken'];
+      }
+    }).catchError((error) => "error: $error");
+  }
+
+  @override
+  void initState() {
+    getUserInfo();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         Opacity(
-          opacity: item['isMatched'] ? 0.4 : 1,
+          opacity: widget.item['isMatched'] ? 0.4 : 1,
           child: Container(
             color: Colors.white,
             margin: EdgeInsets.symmetric(vertical: 5),
@@ -33,20 +65,26 @@ class BuildPostListItem extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    buildTeamImg(item['imageUrl'], 45),
+                    buildTeamImg(
+                        postUserImageUrl == null
+                            ? widget.item['imageUrl']
+                            : postUserImageUrl,
+                        45),
                     SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          item['team_name'],
+                          postUserTeamName == null
+                              ? widget.item['team_name']
+                              : postUserTeamName,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 25,
                           ),
                         ),
                         Text(
-                          convertToAgo(item['createTime'].toDate()),
+                          convertToAgo(widget.item['createTime'].toDate()),
                           style: TextStyle(
                               color: Colors.black.withOpacity(0.5),
                               fontSize: 12),
@@ -56,7 +94,7 @@ class BuildPostListItem extends StatelessWidget {
                     Spacer(),
                     Container(
                       child: Text(
-                        "${DateFormat("yyyy-MM-dd").format(item['time'].toDate())}\n${DateFormat("HH:mm").format(item['time'].toDate())}\n",
+                        "${DateFormat("yyyy-MM-dd").format(widget.item['time'].toDate())}\n${DateFormat("HH:mm").format(widget.item['time'].toDate())}\n",
                         style: TextStyle(fontSize: 15),
                         textAlign: TextAlign.right,
                       ),
@@ -70,7 +108,7 @@ class BuildPostListItem extends StatelessWidget {
                     Text("경기 장소: ",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 15)),
-                    Text(item['location']),
+                    Text(widget.item['location']),
                   ],
                 ),
                 Row(
@@ -78,27 +116,27 @@ class BuildPostListItem extends StatelessWidget {
                     Text("경기 대상: ",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 15)),
-                    Text(item['target']),
+                    Text(widget.item['target']),
                     Spacer(),
-                    isMyMatch
+                    widget.isMyMatch
                         ? Row(
                             children: [
                               IconButton(
                                 icon: Icon(Icons.done),
                                 onPressed: () async {
                                   // await matchController.manageMatch(context, item.id, MatchDo.completed);
-                                  if (item['isMatched'])
+                                  if (widget.item['isMatched'])
                                     return;
                                   else
                                     Get.dialog(matchDialog(
-                                        context, item.id, MatchDo.completed));
+                                        widget.item.id, MatchDo.completed));
                                 },
                               ),
                               IconButton(
                                 icon: Icon(Icons.delete),
                                 onPressed: () async {
                                   Get.dialog(matchDialog(
-                                      context, item.id, MatchDo.delete));
+                                      widget.item.id, MatchDo.delete));
                                 },
                               )
                             ],
@@ -108,9 +146,10 @@ class BuildPostListItem extends StatelessWidget {
                             onPressed: () {
                               Get.to(
                                 () => MessageScreen(
-                                  peerUserUid: item['uid'],
-                                  peerUserTeamName: item['team_name'],
-                                  peerUserImgUrl: item['imageUrl'],
+                                  peerUserUid: widget.item['uid'],
+                                  peerUserTeamName: widget.item['team_name'],
+                                  peerUserImgUrl: widget.item['imageUrl'],
+                                  peerUserMessageToken: postUserMessageToken,
                                 ),
                               );
                             },
@@ -121,7 +160,7 @@ class BuildPostListItem extends StatelessWidget {
             ),
           ),
         ),
-        item['isMatched']
+        widget.item['isMatched']
             ? Positioned(
                 top: 70,
                 left: 0,

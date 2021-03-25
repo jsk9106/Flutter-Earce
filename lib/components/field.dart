@@ -12,7 +12,7 @@ class Field extends StatelessWidget {
     @required this.controller,
     @required this.labelText,
     @required this.hintText,
-    @required this.focusNode,
+    this.focusNode,
   }) : super(key: key);
 
   @override

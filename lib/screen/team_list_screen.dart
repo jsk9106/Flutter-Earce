@@ -98,6 +98,7 @@ class _TeamListScreenState extends State<TeamListScreen> {
                 peerUserUid: data['uid'],
                 peerUserTeamName: data['team_name'],
                 peerUserImgUrl: data['imageUrl'],
+                peerUserMessageToken: data['messageToken'],
               ),
             ),
           ),

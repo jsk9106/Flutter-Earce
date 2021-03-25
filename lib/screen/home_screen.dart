@@ -23,15 +23,17 @@ class _HomeScreenState extends State<HomeScreen> {
   int maxLimitInt;
   String currentUserImageUrl;
 
-  Future<void> getMaxLimit() async{
+  void getMaxLimit() async {
     await FirebaseFirestore.instance
         .collection('post')
         .where('time', isGreaterThan: DateTime.now())
-        .get().then((value) {
-          print(value.docs.length);
-       maxLimitInt = value.docs.length;
-       controller.getMaxLimit(maxLimitInt);
-    });
+        .get()
+        .then((value) {
+          setState(() {
+            maxLimitInt = value.docs.length;
+          });
+      controller.getMaxLimit(maxLimitInt);
+    }).catchError((error) => print("error: $error"));
   }
 
   _HomeScreenState() {
@@ -45,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     controller.limitInit();
+    getMaxLimit();
     super.initState();
   }
 
@@ -129,7 +132,9 @@ class _HomeScreenState extends State<HomeScreen> {
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData)
-              return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(kShadowColor)));
+              return Center(
+                  child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(kShadowColor)));
             return _buildPostList(snapshot.data.docs);
           },
         ),
@@ -138,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildPostList(snapshot) {
-    getMaxLimit();
+    // getMaxLimit();
     List postResult = [];
     for (DocumentSnapshot d in snapshot) {
       if (d['location'].contains(_searchText) |
@@ -154,11 +159,20 @@ class _HomeScreenState extends State<HomeScreen> {
       itemCount: postResult.length + 1,
       itemBuilder: (context, index) {
         if (index == postResult.length) {
-          if (index == maxLimitInt) {
+          print(maxLimitInt);
+          if (index == maxLimitInt && maxLimitInt != 0) {
             return Container(
               alignment: Alignment.center,
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Text("마지막 매치입니다.", style: TextStyle(color: Colors.grey)),
+            );
+          } else if(maxLimitInt == null){
+            return Container();
+          } else if(maxLimitInt == 0){
+            return Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Text("등록 된 매치가 없습니다.", style: TextStyle(color: Colors.grey)),
             );
           } else if (_searchText.isNotEmpty) {
             return Container(
@@ -171,7 +185,8 @@ class _HomeScreenState extends State<HomeScreen> {
           return Center(
             child: Padding(
               padding: const EdgeInsets.only(top: 15),
-              child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(kShadowColor)),
+              child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(kShadowColor)),
             ),
           );
         }

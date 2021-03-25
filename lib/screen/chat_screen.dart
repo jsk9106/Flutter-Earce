@@ -226,6 +226,7 @@ class _ChatScreenState extends State<ChatScreen> {
           peerUserUid: teamInfo['uid'],
           peerUserTeamName: teamInfo['team_name'],
           peerUserImgUrl: teamInfo['imageUrl'],
+          peerUserMessageToken: teamInfo['messageToken'],
         ),
       ),
       child: Container(

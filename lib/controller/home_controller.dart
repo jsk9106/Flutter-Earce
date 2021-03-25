@@ -30,9 +30,7 @@ class HomeController extends GetxController {
     if (scrollController.offset >= scrollController.position.maxScrollExtent &&
         !scrollController.position.outOfRange) {
       if (_maxLimit > limit.value) {
-        print("scroll Event!!");
         limit += limitIncrement;
-        print(limit);
       }
     }
   }

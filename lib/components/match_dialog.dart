@@ -4,7 +4,7 @@ import 'package:eacre/model/match_do_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-Widget matchDialog(BuildContext context, String id, MatchDo matchDo) {
+Widget matchDialog(String id, MatchDo matchDo) {
   MatchController mathController = MatchController();
 
   return Column(
@@ -54,7 +54,7 @@ Widget matchDialog(BuildContext context, String id, MatchDo matchDo) {
                     //   content: Text(changeToastString(matchDo)),
                     // ));
                     Get.back();
-                    Get.snackbar("알림", changeSnackbatText(matchDo), colorText: Colors.white);
+                    Get.snackbar("알림", changeSnackbatText(matchDo), colorText: Colors.white, backgroundColor: kShadowColor.withOpacity(0.5), snackPosition: SnackPosition.BOTTOM);
                   },
                 ),
                 customButton(

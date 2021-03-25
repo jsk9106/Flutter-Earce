@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:eacre/controller/push_message_controller.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,6 +16,7 @@ class ChatInputField extends StatefulWidget {
   final ScrollController scrollController;
   final String currentUserTeamName;
   final String peerUserTeamName;
+  final String peerUserMessageToken;
 
   ChatInputField({
     Key key,
@@ -24,6 +26,7 @@ class ChatInputField extends StatefulWidget {
     @required this.scrollController,
     @required this.currentUserTeamName,
     @required this.peerUserTeamName,
+    @required this.peerUserMessageToken,
   }) : super(key: key);
 
   @override
@@ -31,6 +34,7 @@ class ChatInputField extends StatefulWidget {
 }
 
 class _ChatInputFieldState extends State<ChatInputField> {
+  final PushMessageController pushMessageController = PushMessageController();
   final FocusNode _focusNode = FocusNode();
   final TextEditingController inputMessage = TextEditingController();
   bool isShowImageContainer = false;
@@ -136,13 +140,16 @@ class _ChatInputFieldState extends State<ChatInputField> {
           FirebaseFirestore.instance.collection('chat').doc(widget.chatId).set({
             // 'user1': widget.currentUserUid,
             // 'user2': widget.peerUserUid,
-            'team_name': "${widget.currentUserTeamName} - ${widget.peerUserTeamName}"
+            'team_name':
+                "${widget.currentUserTeamName} - ${widget.peerUserTeamName}"
           });
         }
       });
 
       widget.scrollController.animateTo(0.0,
-          duration: Duration(milliseconds: 300), curve: Curves.easeOut);
+          duration: Duration(milliseconds: 300), curve: Curves.easeOut); // 스크롤 맨 밑으로
+
+      pushMessageController.pushMessage(widget.currentUserTeamName, type == 0 ? content : '사진', widget.peerUserMessageToken); // 푸시 알림 전송
     } else {
       // Fluttertoast.showToast(msg: 'Nothing to send');
       Get.snackbar("알림", "메세지가 없습니다",

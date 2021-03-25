@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eacre/components/components.dart';
 import 'package:eacre/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,12 +22,14 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
   final teamNameController = TextEditingController();
   final imageController = TextEditingController();
   final FocusNode focusNode = FocusNode();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
+  String messageToken;
   String _teamImageURL = "";
   File _image;
   String isUid = 'load';
 
-  uidCheck() async {
+  uidCheck() {
     // currentUser가 collection 'team'에 등록되어있는지 확인
     if (currentUser != null) {
       FirebaseFirestore.instance
@@ -45,9 +48,18 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
     }
   }
 
+  void getMessageToken() {
+    _firebaseMessaging.getToken().then((String token) {
+      assert(token != null);
+      messageToken = token;
+      print("token: $messageToken");
+    });
+  }
+
   @override
   void initState() {
     uidCheck();
+    getMessageToken();
     super.initState();
   }
 
@@ -56,6 +68,7 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
     FirebaseFirestore.instance.collection("team").add({
       "team_name": teamNameController.text,
       "imageUrl": _teamImageURL,
+      "messageToken": messageToken,
       "uid": currentUser.uid,
     });
   }
@@ -140,8 +153,8 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
                   padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
                   color: kShadowColor,
                   elevation: 0,
-                  onPressed: () async{
-                    if(focusNode.hasFocus) focusNode.unfocus();
+                  onPressed: () async {
+                    if (focusNode.hasFocus) focusNode.unfocus();
                     setState(() {
                       isUid = 'load';
                     });

@@ -15,12 +15,14 @@ class MessageScreen extends StatefulWidget {
   final String peerUserUid;
   final String peerUserTeamName;
   final String peerUserImgUrl;
+  final String peerUserMessageToken;
 
   const MessageScreen({
     Key key,
     @required this.peerUserUid,
     @required this.peerUserTeamName,
     @required this.peerUserImgUrl,
+    @required this.peerUserMessageToken,
   }) : super(key: key);
 
   @override
@@ -71,9 +73,12 @@ class _MessageScreenState extends State<MessageScreen> {
   }
 
   // 현재 유저의 팀 이름 가져오기
-  Future<void> getCurrentUserTeamName() async{
-    await FirebaseFirestore.instance.collection('team').where('uid', isEqualTo: currentUserUid).get().then((value) {
-      print(value.docs[0]['team_name']);
+  void getCurrentUserInfo() async {
+    await FirebaseFirestore.instance
+        .collection('team')
+        .where('uid', isEqualTo: currentUserUid)
+        .get()
+        .then((value) {
       setState(() {
         currentUserTeamName = value.docs[0]['team_name'];
       });
@@ -84,7 +89,7 @@ class _MessageScreenState extends State<MessageScreen> {
   void initState() {
     createChatId();
     controller.initLimit();
-    getCurrentUserTeamName();
+    getCurrentUserInfo();
     super.initState();
   }
 
@@ -122,6 +127,7 @@ class _MessageScreenState extends State<MessageScreen> {
             scrollController: controller.scrollController,
             peerUserTeamName: widget.peerUserTeamName,
             currentUserTeamName: currentUserTeamName,
+            peerUserMessageToken: widget.peerUserMessageToken,
           ),
         ],
       ),
@@ -167,8 +173,12 @@ class _MessageScreenState extends State<MessageScreen> {
             return Center(
                 child: Text("불러오는 중..", style: TextStyle(color: Colors.grey)));
           }
-          return buildMessageListItem(context, snapshot[index],
-              sendTimeResult[index], dateResult[index]);
+          return buildMessageListItem(
+            context,
+            snapshot[index],
+            sendTimeResult[index],
+            dateResult[index],
+          );
         },
       ),
     );

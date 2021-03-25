@@ -3,11 +3,12 @@ import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:eacre/components/components.dart';
 import 'package:eacre/constants.dart';
 import 'package:eacre/model/area_model.dart';
-import 'package:eacre/screen/nav_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+
+import 'nav_screen.dart';
 
 class CreatePostScreen extends StatefulWidget {
   final User currentUser;
@@ -36,11 +37,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     await FirebaseFirestore.instance
         .collection("team")
         .where('uid', isEqualTo: FirebaseAuth.instance.currentUser.uid)
-        .snapshots()
-        .listen((event) {
+        .get()
+        .then((value) {
       setState(() {
-        teamName = event.docs[0]["team_name"];
-        imageUrl = event.docs[0]["imageUrl"];
+        teamName = value.docs[0]["team_name"];
+        imageUrl = value.docs[0]["imageUrl"];
       });
     });
   }
@@ -152,7 +153,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 elevation: 0,
                 onPressed: () async{
                   await add();
-                  Get.back();
+                  Get.offAll(NavScreen());
                 },
               ),
             ],
@@ -171,6 +172,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       "https://www.freeiconspng.com/thumbs/login-icon/user-login-icon-14.png")
                   .image
               : Image.network(imageUrl).image,
+          backgroundColor: Colors.grey[200],
         ),
         SizedBox(width: 5),
         Text(teamName, style: TextStyle(fontSize: 20)),
